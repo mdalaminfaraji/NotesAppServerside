@@ -133,7 +133,7 @@ async function run() {
       res.send(result);
     });
 
-    app.get('/api/notes/:email', async (req: Request, res: Response) => {
+    app.get('/api/notes/:email',verifyJWT, async (req: Request, res: Response) => {
         const userEmail = req.params.email;
       
         try {
@@ -145,7 +145,7 @@ async function run() {
         }
       });
       // Route to handle search
-app.get('/api/search', async (req: Request, res: Response) => {
+app.get('/api/search',verifyJWT, async (req: Request, res: Response) => {
     const userEmail = req.query.userEmail as string;
     const searchTerm = req.query.term as string;
   
