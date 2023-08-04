@@ -14,9 +14,15 @@ app.use(cors());
 app.use(express.json());
 interface DecodedUser {
     email: string;
-    id: string;
   }
-
+  declare global {
+    namespace Express {
+      interface Request {
+        decoded?: DecodedUser;
+      }
+    }
+  }
+   
 
 // Verify JWT
 
@@ -54,7 +60,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
     const usersCollection = client.db('NotesApp').collection('users');
     const AddNoteCollection = client.db('NotesApp').collection('allNote');
 
@@ -79,7 +85,7 @@ async function run() {
       res.send(result);
     });
 
-    app.get('/getNote/:email', verifyJWT, async (req: Request, res: Response) => {
+    app.get('/getNote/:email',verifyJWT,  async (req: Request, res: Response) => {
       const { email } = req.params;
       const result = await AddNoteCollection.find({ email }).toArray();
       res.send(result);
@@ -126,6 +132,43 @@ async function run() {
       }).toArray();
       res.send(result);
     });
+
+    app.get('/api/notes/:email', async (req: Request, res: Response) => {
+        const userEmail = req.params.email;
+      
+        try {
+          const notes = await AddNoteCollection.find({ email: userEmail }).toArray();
+          res.json(notes);
+        } catch (error) {
+          console.error('Error fetching user notes:', error);
+          res.status(500).json({ error: 'Internal server error' });
+        }
+      });
+      // Route to handle search
+app.get('/api/search', async (req: Request, res: Response) => {
+    const userEmail = req.query.userEmail as string;
+    const searchTerm = req.query.term as string;
+  
+    try {
+      const searchRegex = new RegExp(searchTerm, 'i'); // 'i' option makes the search case-insensitive
+      const searchResults = await AddNoteCollection
+        .find({
+          email: userEmail,
+          $or: [
+            { title: { $regex: searchRegex } },
+            { category: { $regex: searchRegex } },
+            { content: { $regex: searchRegex } },
+          ],
+        })
+        .toArray();
+  
+      res.json(searchResults);
+    } catch (error) {
+      console.error('Error searching notes:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+  
 
     // Send a ping to confirm a successful connection
     await client.db('admin').command({ ping: 1 });
