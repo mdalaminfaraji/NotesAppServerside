@@ -181,7 +181,7 @@ app.get('/api/search',verifyJWT, async (req: Request, res: Response) => {
 run().catch(console.dir);
 
 app.get('/', (req: Request, res: Response) => {
-  res.send('Hello World!');
+  res.send('Notes server is running.....');
 });
 
 app.listen(port, () => {
