@@ -121,7 +121,7 @@ async function run() {
       // Step 1: Endpoint to update image URL for a card
 app.post('/cards/updateImage', async (req: Request<any, any, CardUpdateRequest>, res: Response) => {
     const { cardId, imageUrl } = req.body;
-  
+    console.log(cardId, imageUrl);
     // Step 2: Validate incoming data
     if (!cardId || !imageUrl) {
       return res.status(400).json({ error: 'Invalid data' });
