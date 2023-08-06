@@ -114,6 +114,33 @@ async function run() {
       const result = await AddNoteCollection.updateOne(filter, Note, option);
       res.send(result);
     });
+    interface CardUpdateRequest {
+        cardId: string;
+        imageUrl: string;
+      }
+      // Step 1: Endpoint to update image URL for a card
+app.post('/cards/updateImage', async (req: Request<any, any, CardUpdateRequest>, res: Response) => {
+    const { cardId, imageUrl } = req.body;
+  
+    // Step 2: Validate incoming data
+    if (!cardId || !imageUrl) {
+      return res.status(400).json({ error: 'Invalid data' });
+    }
+    const filter = { _id: new ObjectId(cardId) };
+    // Step 3: Update the card in the MongoDB database
+    try {
+   
+      await AddNoteCollection.updateOne(filter, {$set:{photoLink:imageUrl}})
+  
+      res.json({ message: 'Image URL updated successfully!' });
+    } catch (error) {
+      console.error('Error updating image URL:', error);
+      res.status(500).json({ error: 'Failed to update image URL' });
+    }
+  });
+  
+
+
 
     app.delete('/addNoteDelete/:id', async (req: Request, res: Response) => {
       const id: string = req.params.id;
