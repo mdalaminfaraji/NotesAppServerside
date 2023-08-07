@@ -169,6 +169,7 @@ app.post('/cards/updateImage', async (req: Request<any, any, CardUpdateRequest>,
           res.status(500).json({ error: 'Internal server error' });
         }
       });
+      
       // Route to handle search
 app.get('/api/search',verifyJWT, async (req: Request, res: Response) => {
     const userEmail = req.query.userEmail as string;
@@ -181,7 +182,6 @@ app.get('/api/search',verifyJWT, async (req: Request, res: Response) => {
           email: userEmail,
           $or: [
             { title: { $regex: searchRegex } },
-            { category: { $regex: searchRegex } },
             { content: { $regex: searchRegex } },
           ],
         })
