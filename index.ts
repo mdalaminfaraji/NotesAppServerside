@@ -148,15 +148,7 @@ app.post('/cards/updateImage', async (req: Request<any, any, CardUpdateRequest>,
       res.send(result);
     });
 
-    app.get('/search', verifyJWT, async (req: Request, res: Response) => {
-      const { query } = req.query;
 
-      const regexQuery = new RegExp(query as string, 'i');
-      const result = await AddNoteCollection.find({
-        $or: [{ title: regexQuery }, { category: regexQuery }],
-      }).toArray();
-      res.send(result);
-    });
 
     app.get('/api/notes/:email',verifyJWT, async (req: Request, res: Response) => {
         const userEmail = req.params.email;
@@ -169,7 +161,7 @@ app.post('/cards/updateImage', async (req: Request<any, any, CardUpdateRequest>,
           res.status(500).json({ error: 'Internal server error' });
         }
       });
-      
+
       // Route to handle search
 app.get('/api/search',verifyJWT, async (req: Request, res: Response) => {
     const userEmail = req.query.userEmail as string;
