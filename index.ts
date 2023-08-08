@@ -12,6 +12,7 @@ const port = process.env.PORT || 5000;
 // middleware
 app.use(cors());
 app.use(express.json());
+
 interface DecodedUser {
     email: string;
   }
@@ -26,13 +27,12 @@ interface DecodedUser {
 
 // Verify JWT
 
-
 const verifyJWT = (req: Request, res: Response, next: NextFunction) => {
     const authorization = req.headers.authorization;
     if (!authorization) {
       return res.status(401).send({ error: true, message: 'unauthorized access' });
     }
-    // bearer token
+
     const token = authorization.split(' ')[1];
   
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET as string, (err, decoded) => {
@@ -44,7 +44,8 @@ const verifyJWT = (req: Request, res: Response, next: NextFunction) => {
     });
   };
 
-// MongoDB
+
+// MongoDB connection
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.wu2rnap.mongodb.net/?retryWrites=true&w=majority`;
 
@@ -71,7 +72,7 @@ async function run() {
       res.send({ token });
     });
 
-    // User Related Data
+    // User Related Api
     app.post('/users', async (req: Request, res: Response) => {
       const user: any = req.body;
       const query = { email: user.email };
@@ -84,19 +85,20 @@ async function run() {
       const result = await usersCollection.insertOne(user);
       res.send(result);
     });
-
+// get Note api... 
     app.get('/getNote/:email',verifyJWT,  async (req: Request, res: Response) => {
       const { email } = req.params;
       const result = await AddNoteCollection.find({ email }).toArray();
       res.send(result);
     });
 
+// add Note api
     app.post('/addNote', async (req: Request, res: Response) => {
       const NoteData: any = req.body;
       const result = await AddNoteCollection.insertOne(NoteData);
       res.send(result);
     });
-
+// update specifiec notes api 
     app.put('/update/:id', async (req: Request, res: Response) => {
       const id: string = req.params.id;
       console.log(id);
@@ -118,15 +120,15 @@ async function run() {
         cardId: string;
         imageUrl: string;
       }
-      // Step 1: Endpoint to update image URL for a card
+    // image upload api 
 app.post('/cards/updateImage', async (req: Request<any, any, CardUpdateRequest>, res: Response) => {
     const { cardId, imageUrl } = req.body;
-    // Step 2: Validate incoming data
+   
     if (!cardId || !imageUrl) {
       return res.status(400).json({ error: 'Invalid data' });
     }
     const filter = { _id: new ObjectId(cardId) };
-    // Step 3: Update the card in the MongoDB database
+    
     try {
    
       await AddNoteCollection.updateOne(filter, {$set:{photoLink:imageUrl}})
@@ -140,7 +142,7 @@ app.post('/cards/updateImage', async (req: Request<any, any, CardUpdateRequest>,
   
 
 
-
+//Delete specific data Api
     app.delete('/addNoteDelete/:id', async (req: Request, res: Response) => {
       const id: string = req.params.id;
       const query = { _id: new ObjectId(id) };
@@ -149,7 +151,7 @@ app.post('/cards/updateImage', async (req: Request<any, any, CardUpdateRequest>,
     });
 
 
-
+//verify user and get specific user data api.......
     app.get('/api/notes/:email',verifyJWT, async (req: Request, res: Response) => {
         const userEmail = req.params.email;
       
